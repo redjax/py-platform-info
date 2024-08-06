@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+
 from pytest import fixture
 
 log = logging.getLogger(__name__)

@@ -1,9 +1,12 @@
-import logging
-import sys
-import os
-import typing as t
-import platform
+from __future__ import annotations
+
 from decimal import Decimal
+import logging
+import os
+import platform
+import sys
+import typing as t
+
 from pytest import mark
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
