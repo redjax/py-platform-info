@@ -10,6 +10,23 @@ import sys
 from types import ModuleType
 import typing as t
 
+#call ascii art
+def os_ascii_printer(os_type):
+    if os_type == "Unix" or os_type == "Linux":
+        with open("linux.txt", "r") as linux_ascii:
+            art = linux_ascii.read()
+            print(art)
+    elif os_type == "Windows":
+        with open("windows.txt", "r") as windows_ascii:
+            art = windows_ascii.read()
+            print(art)
+    elif os_type == "Darwin":
+        with open("apple.txt", "r") as apple_ascii:
+            art = apple_ascii.read()
+            print(art)
+    else:
+        print("OS could not be detected...")
+
 log: logging.Logger = logging.getLogger(__name__)
 
 ## Control which classes, variables, and functions are available for import.
@@ -25,6 +42,9 @@ match _platform.system():
     case _:
         ## Unknown system, do not export and platform-specific classes.
         pass
+
+#call ascii art generator
+os_ascii_printer(_platform.system())
 
 ## Generic type for dataclass classes
 T = t.TypeVar("T")
