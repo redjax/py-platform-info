@@ -16,6 +16,19 @@ The CLI allows for multiple verbosity levels (capped at 2, i.e. `-vv`). For each
 
 This script can also be run as a module: `python -m platform_info --help`
 
+### Tests
+
+Unit tests are in the [`tests/`](./tests) directory. They can be run with `nox` (included in `requirements.txt`) with: `nox -s tests`.
+
+To run the tests manually:
+
+- Create a virtual environment with `virtualenv .venv`
+- Activate the environment:
+  - Windows: `. .\.venv\Scripts\activate`
+  - Linux/Mac: `. ./.venv/bin/activate`
+- Install the dependencies with `pip install -r requirements.txt`
+- Run the tests with: `pytest -n auto --tb=auto -v -rsXxfP`
+
 ## Examples
 
 ### Linux
