@@ -20,19 +20,19 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from contextlib import AbstractContextManager
 from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import Enum
+import itertools
 import logging
 import multiprocessing
 import platform as _platform
 import sys
+import threading
+import time
 from types import ModuleType
 import typing as t
-from contextlib import AbstractContextManager
-import threading
-import itertools
-import time
 
 log: logging.Logger = logging.getLogger(__name__)
 
