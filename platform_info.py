@@ -233,7 +233,7 @@ def get_os_release() -> dict[str, str]:
     """Return Linux OS release information."""
     match _platform.system():
         case "Linux" | "Unix":
-            return EnumLinux.OS_RELEASE.value
+            return get_freedesktop_release()
         case "Darwin":
             return EnumMac.VERSION.value
         case _:
@@ -295,17 +295,17 @@ def get_os_ascii(os: str) -> str | None:
         case "win32" | "windows":
             _ascii: str = f"""
                         _.-;:q=._ 
-                      .' j=""^k;:\. 
+                      .' j=""^k;:\\. 
                      ; .F       ";`Y
                     ,;.J_        ;'j
                   ,-;"^7F       : .F           _________________
                  ,-'-_<.        ;gj. _.,---""''               .'
-                ;  _,._`\.     : `T"5,                       ; 
+                ;  _,._`\\.     : `T"5,                       ; 
                 : `?8w7 `J  ,-'" -^q. `                     ;  
-                 \;._ _,=' ;   n58L Y.                     .' 
+                  \\;._ _,=' ;   n58L Y.                    .' 
                    F;";  .' k_ `^'  j'                     ;  
                    J;:: ;     "y:-='                      ;   
-                    L;;==      |:;   jT\                  ;
+                    L;;==      |:;   jT\\                  ;
                     L;:;J      J:L  7:;'       _         ; 
                     I;|:.L     |:k J:.' ,  '       .     ;
                     |;J:.|     ;.I F.:      .           : 
@@ -316,7 +316,7 @@ def get_os_ascii(os: str) -> str | None:
             .'       |.:  `"-=-'    |.J              ; 
         _.-'         `: :           ;:;           _ ; 
     _.-'"             J: :         /.;'       ;    ; 
-  ='_                  k;.\.    _.;:Y'     ,     .' 
+  ='_                  k;.\\.    _.;:Y'     ,     .' 
      `"---..__          `Y;."-=';:='     ,      .'
               `""--..__   `"==="'    -        .' 
                        ``""---...__        .-' 
@@ -338,8 +338,8 @@ def get_os_ascii(os: str) -> str | None:
         :8P    '      :888
          8a.   :     _a88P
        ._/"Yaa_:   .| 88P|
-       \    YP"    `| 8P  `.
-       /     \.___.d|    .'
+        \\   YP"    `| 8P  `.
+       /     \\.___.d|    .'
        `--..__)8888P`._.'         
 """
 
@@ -347,9 +347,9 @@ def get_os_ascii(os: str) -> str | None:
             _ascii: str = """
                ,        ,
               /(        )`
-              \ \___   / |
+            \\ \\___   / |
               /- _  `-/  '
-             (/\/ \ \   /\\
+             (/\\/ \\ \\   /\\
              / /   | `    \\
              O O   ) /    |
              `-^--'`<     '
@@ -357,13 +357,13 @@ def get_os_ascii(os: str) -> str | None:
              `.___/`    /
                `-----' /
   <----.     __ / __   \\
-  <----|====O)))==) \) /====
+  <----|====O)))==) \\) /====
   <----'    `--' `.__,' \\
                |        |
-                \       /
-           ______( (_  / \______
+                \\       /
+           ______( (_  / \\______
   (FL)   ,'  ,-----'   |        \\
-         `--\{__________)        \/            
+         `--\\{__________)        \\/            
 """
 
         case _:
@@ -373,7 +373,7 @@ def get_os_ascii(os: str) -> str | None:
                 : (     ) :
      .      |  ( )`._ _.'( )  |      .
      O  .   |`-  -|  .  |-  -'|   .  O
-     H  o   |A /\ | ( ) | /\ A|   o  H
+     H  o   |A /\\ | ( ) | /\\ A|   o  H
      H  I   |  -' | | | | `-  |   I  H
     .H__T___|_|___|_|_|_|___|_|___T__H.
     |_________________________________|
@@ -417,10 +417,6 @@ class EnumWin32(Enum):
 
 class EnumUnix(Enum):
     LIBC_VER: t.Tuple[str] = _platform.libc_ver()
-
-
-class EnumLinux(Enum):
-    OS_RELEASE: dict[str, str] | None = get_freedesktop_release()
 
 
 #######################################
