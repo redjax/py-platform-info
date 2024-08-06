@@ -4,6 +4,7 @@ import os
 import typing as t
 import platform
 from decimal import Decimal
+from pytest import mark
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -12,17 +13,26 @@ import platform_info
 log = logging.getLogger(__name__)
 
 
-def test_platform_system(detected_system: str):
-    assert detected_system, ValueError(
-        "Missing Pytest fixture containing detected system."
-    )
-    assert isinstance(detected_system, str), TypeError(
-        f"Invalid type for 'detected_system'. Should be a str, got type: ({type(detected_system)})"
-    )
-
-    log.debug(f"Detected OS: {detected_system}")
+@mark.xfail
+def test_expect_fail(detected_system: str):
+    assert detected_system is None
 
 
+@mark.xfail
+@mark.platform
+def test_fail_platform_system(detected_system: str):
+    assert detected_system == "Force test failure", ValueError("This test should fail")
+
+
+@mark.xfail
+def test_fail_get_full_platform_info():
+
+    plat: platform_info.PlatformInfo = platform_info.get_platform_info()
+
+    assert plat.system == "Force test failure", ValueError("This test should fail")
+
+
+@mark.platform
 def test_get_full_platform_info():
     log.info("Getting full PlatformInfo()")
 
@@ -43,6 +53,15 @@ def test_get_full_platform_info():
         raise exc
 
 
+@mark.xfail
+def test_fail_platform_ascii():
+    plat: platform_info.PlatformInfo = platform_info.get_platform_info()
+
+    _art = plat.ascii_art
+    assert _art == "Force test failure", ValueError("This test should fail")
+
+
+@mark.platform
 def test_platform_ascii():
     log.info("Getting full PlatformInfo()")
 
@@ -66,6 +85,14 @@ def test_platform_ascii():
     log.debug(f"\n{plat.ascii_art}")
 
 
+@mark.xfail
+def test_fail_convert_bytes_int(ten_mb_bytes: int):
+    _converted = platform_info.convert_bytes(bytes=ten_mb_bytes)
+
+    assert isinstance(_converted, int), TypeError("This test should fail")
+
+
+@mark.platform
 def test_convert_bytes_int(ten_mb_bytes: int):
     _converted = platform_info.convert_bytes(bytes=ten_mb_bytes)
     assert _converted, ValueError("Missing Pytest fixture containing 10MB in bytes.")
@@ -76,8 +103,17 @@ def test_convert_bytes_int(ten_mb_bytes: int):
     log.debug(f"Converted {ten_mb_bytes} bytes to: {_converted}")
 
 
+@mark.xfail
+def test_fail_convert_bytes_obj(ten_mb_bytes: int):
+    _converted = platform_info.convert_bytes(bytes=ten_mb_bytes, as_obj=True)
+
+    assert _converted.amount == 150000, ValueError("This test should fail")
+
+
+@mark.platform
 def test_convert_bytes_obj(ten_mb_bytes: int):
     _converted = platform_info.convert_bytes(bytes=ten_mb_bytes, as_obj=True)
+
     assert _converted, ValueError("Missing Pytest fixture containing 10MB in bytes.")
     assert isinstance(_converted, platform_info.ConvertedBytes), TypeError(
         f"Invalid type for converted bytes. Should have been a platform_info.ConvertedBytes object, got type: ({type(_converted)})"
@@ -86,6 +122,14 @@ def test_convert_bytes_obj(ten_mb_bytes: int):
     log.debug(f"Converted {ten_mb_bytes} bytes to: {_converted}")
 
 
+@mark.xfail
+def test_fail_convert_bytes_str(ten_mb_bytes: int):
+    _converted = platform_info.convert_bytes(bytes=ten_mb_bytes, as_str=True)
+
+    assert isinstance(_converted, int), ValueError("This test should fail")
+
+
+@mark.platform
 def test_convert_bytes_str(ten_mb_bytes: int):
     _converted = platform_info.convert_bytes(bytes=ten_mb_bytes, as_str=True)
     assert _converted, ValueError("Missing Pytest fixture containing 10MB in bytes.")
@@ -96,6 +140,14 @@ def test_convert_bytes_str(ten_mb_bytes: int):
     log.debug(f"Converted {ten_mb_bytes} bytes to: {_converted}")
 
 
+@mark.xfail
+def test_fail_get_cpu_count():
+    cpu_count = platform_info.get_cpu_count()
+
+    assert cpu_count < 0, ValueError("This test should fail")
+
+
+@mark.platform
 def test_get_cpu_count():
     cpu_count = platform_info.get_cpu_count()
 
@@ -107,6 +159,14 @@ def test_get_cpu_count():
     log.debug(f"CPU count: {cpu_count}")
 
 
+@mark.xfail
+def test_fail_platform_terse():
+    platform_terse = platform_info.get_platform_terse()
+
+    assert platform_terse == "Force test fail", ValueError("This test should fail")
+
+
+@mark.platform
 def test_platform_terse():
     platform_terse = platform_info.get_platform_terse()
 
@@ -118,6 +178,14 @@ def test_platform_terse():
     log.debug(f"Platform terse: {platform_terse}")
 
 
+@mark.xfail
+def test_fail_platform_aliased():
+    platform_aliased = platform_info.get_platform_aliased()
+
+    assert platform_aliased == "Force test fail", ValueError("This test should fail")
+
+
+@mark.platform
 def test_platform_aliased():
     platform_aliased = platform_info.get_platform_terse()
 
@@ -129,6 +197,14 @@ def test_platform_aliased():
     log.debug(f"Platform aliased: {platform_aliased}")
 
 
+@mark.xfail
+def test_fail_platform_uname():
+    platform_uname = platform_info.get_platform_uname()
+
+    assert isinstance(platform_uname, str), TypeError("This test should fail")
+
+
+@mark.platform
 def test_platform_uname():
     platform_uname = platform_info.get_platform_uname()
 
@@ -140,6 +216,14 @@ def test_platform_uname():
     log.debug(f"Platform uname: {platform_uname}")
 
 
+@mark.xfail
+def test_fail_platform_python():
+    platform_python = platform_info.get_platform_python()
+
+    assert isinstance(platform_python, str), TypeError("This test should fail")
+
+
+@mark.platform
 def test_platform_python():
     platform_python = platform_info.get_platform_python()
 
@@ -157,6 +241,17 @@ Executable location: {platform_python.exec_prefix}
     log.debug(f"Detected Python:\n{msg}")
 
 
+@mark.xfail
+def test_fail_platform_os_release(detected_system: str):
+    platform_os_release = platform_info.get_os_release()
+
+    if detected_system == "Windows":
+        assert platform_os_release is not None, ValueError("This test should fail")
+    else:
+        assert isinstance(platform_os_release, int), TypeError("This test should fail")
+
+
+@mark.platform
 def test_platform_os_release(detected_system: str):
     platform_os_release = platform_info.get_os_release()
 
@@ -171,6 +266,19 @@ def test_platform_os_release(detected_system: str):
     log.debug(f"Platform OS release: {platform_os_release}")
 
 
+@mark.xfail
+def test_fail_platform_libc_version(detected_system: str):
+    platform_libc_version = platform_info.get_libc_version()
+
+    if detected_system == "Windows":
+        assert platform_libc_version is not None, ValueError("This test should fail")
+    else:
+        assert isinstance(platform_libc_version, str), TypeError(
+            "This test should fail"
+        )
+
+
+@mark.platform
 def test_platform_libc_version(detected_system: str):
     platform_libc_version = platform_info.get_libc_version()
 
