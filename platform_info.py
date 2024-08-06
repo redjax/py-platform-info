@@ -141,7 +141,7 @@ class ConvertedBytes:
 
 def convert_bytes(
     bytes: int = None, as_obj: bool = False, as_str: bool = False
-) -> t.Union[ConvertedBytes, str, int]:
+) -> t.Union[ConvertedBytes, str, int, float]:
     """Scale bytes up to proper unit (K, M, G, T, P).
 
     Params:
@@ -251,7 +251,7 @@ def get_os_release() -> dict[str, str]:
 
 def get_libc_version() -> t.Tuple[str]:
     """Return Unix system's libc version."""
-    if _platform.system not in ["Linux", "Unix", "Darwin"]:
+    if _platform.system() not in ["Linux", "Unix", "Darwin"]:
         log.warning(
             f"Checking libc version on platform '{_platform.system()}' is not supported."
         )
