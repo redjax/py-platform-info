@@ -13,3 +13,13 @@ For development, you can optionally install dependencies like `ruff`, `pytest`, 
 This script includes a CLI interface built with [`argparse`](https://docs.python.org/3/library/argparse.html). To see a list of available options, run `python platform_info.py --help`.
 
 The CLI allows for multiple verbosity levels (capped at 2, i.e. `-vv`). For each level of verbosity, more system information is printed; to print the full `PlatformInfo()` object, run the script with `-d/--debug`, i.e. `python platform_info.py -d`.
+
+## Examples
+
+### Linux
+
+![platform_linux.png](./assets/img/platform_linux.png)
+
+### Windows
+
+![platform_windows.png](./assets/img/platform_windows.png)
