@@ -29,6 +29,10 @@ import platform as _platform
 import sys
 from types import ModuleType
 import typing as t
+from contextlib import AbstractContextManager
+import threading
+import itertools
+import time
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -427,6 +431,31 @@ class EnumUnix(Enum):
 #######################################
 
 
+class CLISpinner(AbstractContextManager):
+    def __init__(self, message: str = "Processing..."):
+        self.message = message
+        self.stop_event = threading.Event()
+        self.spinner_thread = threading.Thread(target=self._spin)
+
+    def __enter__(self):
+        self.spinner_thread.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.stop_event.set()
+        self.spinner_thread.join()
+        # Clear the line after the spinner stops
+        sys.stdout.write("\r" + " " * (len(self.message) + 4) + "\r")
+        sys.stdout.flush()
+
+    def _spin(self):
+        spinner_cycle = itertools.cycle(["|", "/", "-", "\\"])
+        while not self.stop_event.is_set():
+            sys.stdout.write(f"\r{self.message} {next(spinner_cycle)}")
+            sys.stdout.flush()
+            time.sleep(0.1)
+
+
 @dataclass
 class DictMixin:
     """Mixin class to add "as_dict()" method to classes. Equivalent to .__dict__.
@@ -689,7 +718,8 @@ Python:
 
 
 def main(options: argparse.Namespace):
-    platform_info: PlatformInfo = get_platform_info()
+    with CLISpinner(message="Compiling platform information... "):
+        platform_info: PlatformInfo = get_platform_info()
 
     if options.debug:
         print(platform_info.ascii_art)
