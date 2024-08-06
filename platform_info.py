@@ -178,15 +178,16 @@ def get_platform_info() -> PlatformInfo:
         This method initializes a `PlatformInfo` object, handling any exceptions
         and returning a PlatformInfo class where possible.
     """
-    try:
-        p_info: PlatformInfo = PlatformInfo()
+    with CLISpinner(message="Compiling platform information... "):
+        try:
+            p_info: PlatformInfo = PlatformInfo()
 
-        return p_info
-    except Exception as exc:
-        msg = f"({type(exc)}) Unhandled exception initializing PlatformInfo object. Details: {exc}"
-        log.error(msg)
+            return p_info
+        except Exception as exc:
+            msg = f"({type(exc)}) Unhandled exception initializing PlatformInfo object. Details: {exc}"
+            log.error(msg)
 
-        raise exc
+            raise exc
 
 
 def get_cpu_count() -> int:
@@ -432,6 +433,15 @@ class EnumUnix(Enum):
 
 
 class CLISpinner(AbstractContextManager):
+    """Show a CLI spinner in a new thread (disappears when context manager exits).
+
+    Description:
+        Wrap a function call in `with CLISpinner(message="..."):` to show a spinner in the CLI as the operation runs.
+        When the operation completes, the spinner will disappear.
+
+        Useful for providing feedback to user on longer running operations.
+    """
+
     def __init__(self, message: str = "Processing..."):
         self.message = message
         self.stop_event = threading.Event()
@@ -718,8 +728,7 @@ Python:
 
 
 def main(options: argparse.Namespace):
-    with CLISpinner(message="Compiling platform information... "):
-        platform_info: PlatformInfo = get_platform_info()
+    platform_info: PlatformInfo = get_platform_info()
 
     if options.debug:
         print(platform_info.ascii_art)
