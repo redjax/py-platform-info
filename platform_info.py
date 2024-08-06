@@ -1,3 +1,22 @@
+"""Compile information from the platform running this script using only the stdlib.
+
+Description:
+    This script compiles information about the current platform, like the OS (type, release, version, etc),
+    Python (version, binary location, implementation, etc), and more into a single `PlatformInfo()` class object.
+    
+    The `PlatformInfo()` class detects the current OS and also adds "extra" platform-specific info, like the libc version
+    for Unix-based distributions.
+    
+    The script also has a CLI, implemented with `argparse`. Run `python platform_info.py --help` to see available options.
+    
+Usage:
+    - Run the program as a script with `python platform_info.py`
+        - A `PlatformInfo()` object is initialized and the code in `main.py` is executed.
+    - Run the program as a CLI utility with `python platform_info.py {args}
+        - To see available options, run `python platform_info.py --help`
+
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -5,6 +24,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import Enum
 import logging
+import multiprocessing
 import platform as _platform
 import sys
 from types import ModuleType
@@ -80,7 +100,9 @@ def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     ## Add debugging flag
-    parser.add_argument("-d", "--debug", dest="debug", action="store_true")
+    parser.add_argument(
+        "-d", "--debug", dest="debug", action="store_true", help="Enable debug logging"
+    )
     ## Add verbosity counter
     parser.add_argument(
         "-v",
@@ -163,6 +185,11 @@ def get_platform_info() -> PlatformInfo:
         raise exc
 
 
+def get_cpu_count() -> int:
+    """Return integer count of CPUs detected."""
+    return multiprocessing.cpu_count()
+
+
 def get_platform_terse() -> str:
     """Return 'terse' platform info."""
     return _platform.platform(terse=True)
@@ -175,7 +202,7 @@ def get_platform_aliased() -> str:
 
 def get_platform_uname() -> "PlatformUname":
     """Return an initalized PlatformUname instance."""
-    PlatformUname()
+    return PlatformUname()
 
 
 def get_platform_python() -> "PlatformPython":
@@ -428,6 +455,7 @@ class PlatformInfoBase(DictMixin):
     release: str = field(default_factory=_platform.release)
     version: str = field(default_factory=_platform.version)
     processor: str | None = field(default_factory=_platform.processor)
+    cpu_count: int = field(default_factory=get_cpu_count)
     arch: t.Tuple[str, str] = field(default_factory=_platform.architecture)
     uname: PlatformUname = field(default_factory=get_platform_uname)
     python: PlatformPython = field(default_factory=get_platform_python)
@@ -499,18 +527,79 @@ class PlatformInfo(PlatformInfoBase):
 
         return platform_extra
 
+    def display_info(self, simplified: bool = True):
+        if simplified:
+            msg: str = f"""[ Platform Information ]
+OS:
+    Type: {self.system}
+    Release: {self.release}
+    Version: {self.version}
+    Hostname: {self.uname.node}
+    Kernel release: {self.uname.release}
+CPU Architecture:
+    x86/x64: {self.processor}
+    CPU count: {self.cpu_count}
+Python:
+    Version: {self.python.version}
+    Executable location: {self.python.exec_prefix}
+    Default encoding: {self.python.default_encoding}
+    'PYTHONDONTWRITEBYTECODE' environment variable: {self.python.dont_write_bytecode}
+"""
+
+            print(msg)
+
+        else:
+
+            msg: str = f"""[ Platform Information ]
+OS:
+    Type: {self.system}
+    Release: {self.release}
+    Version: {self.version}
+    Platform: {self.platform}
+    Uname:
+        Node (hostname): {self.uname.node}
+        Kernel release: {self.uname.release}
+CPU Architecture:
+    x86/x64: {self.processor}
+    CPU count: {self.cpu_count}
+Python:
+    Implementation: {self.python.implementation}
+    Version: {self.python.version}
+    Executable location: {self.python.exec_prefix}
+    Base prefix: {self.python.base_prefix}
+    Build: {self.python.build}
+    Revision: {self.python.revision}
+    Compiler: {self.python.compiler}
+    Flags: {self.python.flags}
+    Default encoding: {self.python.default_encoding}
+    'PYTHONDONTWRITEBYTECODE' environment variable: {self.python.dont_write_bytecode}
+
+"""
+
+        print(msg)
+
 
 def main(options: argparse.Namespace):
     platform_info: PlatformInfo = get_platform_info()
 
-    if options.verbosity > 1:
-        log.debug(f"Platform info:")
-        log.debug(platform_info)
+    if options.debug:
+        print(platform_info)
 
-        log.debug(f"Platform specific info for OS: {_platform.system()}")
-        log.debug(platform_info.platform_specific_info)
     else:
-        print(f"Platform info initialized")
+
+        if options.verbosity == 0 or options.verbosity is None:
+
+            msg: str = f"""[ Platform Info ]
+    OS: {platform_info.system}
+    CPU: {platform_info.processor} ({platform_info.cpu_count} core(s))
+    Python: {platform_info.python.implementation} v{platform_info.python.version} ({platform_info.python.exec_prefix})
+    """
+            print(msg)
+
+        if options.verbosity == 1:
+            platform_info.display_info(simplified=True)
+        elif options.verbosity > 1:
+            platform_info.display_info(simplified=False)
 
 
 if __name__ == "__main__":
