@@ -276,6 +276,92 @@ def get_freedesktop_release() -> dict[str, str] | None:
             return None
 
 
+def get_os_ascii(os: str) -> str | None:
+    if os is None:
+        return
+
+    match os.lower():
+        case "mac" | "darwin":
+            _ascii: str = f"""
+             .:'
+         __ :'__
+      .'`__`-'__``.
+     :__________.-'
+     :_________:
+      :_________`-;
+       `.__.-.__.'
+"""
+
+        case "win32" | "windows":
+            _ascii: str = f"""
+                        _.-;:q=._ 
+                      .' j=""^k;:\. 
+                     ; .F       ";`Y
+                    ,;.J_        ;'j
+                  ,-;"^7F       : .F           _________________
+                 ,-'-_<.        ;gj. _.,---""''               .'
+                ;  _,._`\.     : `T"5,                       ; 
+                : `?8w7 `J  ,-'" -^q. `                     ;  
+                 \;._ _,=' ;   n58L Y.                     .' 
+                   F;";  .' k_ `^'  j'                     ;  
+                   J;:: ;     "y:-='                      ;   
+                    L;;==      |:;   jT\                  ;
+                    L;:;J      J:L  7:;'       _         ; 
+                    I;|:.L     |:k J:.' ,  '       .     ;
+                    |;J:.|     ;.I F.:      .           : 
+                   ;J;:L::     |.| |.J  , '   `    ;    ; 
+                 .' J:`J.`.    :.J |. L .    ;         ; 
+                ;    L :k:`._ ,',j J; |  ` ,        ; ; 
+              .'     I :`=.:."_".'  L J             `.'
+            .'       |.:  `"-=-'    |.J              ; 
+        _.-'         `: :           ;:;           _ ; 
+    _.-'"             J: :         /.;'       ;    ; 
+  ='_                  k;.\.    _.;:Y'     ,     .' 
+     `"---..__          `Y;."-=';:='     ,      .'
+              `""--..__   `"==="'    -        .' 
+                       ``""---...__        .-' 
+                                   ``""---'         
+"""
+
+        case "linux":
+            _ascii: str = f"""
+              a8888b.
+             d888888b.
+             8P"YP"Y88
+             8|o||o|88
+             8'    .88
+             8`._.' Y8.
+            d/      `8b.
+           dP   .    Y8b.
+          d8:'  "  `::88b
+         d8"         'Y88b
+        :8P    '      :888
+         8a.   :     _a88P
+       ._/"Yaa_:   .| 88P|
+       \    YP"    `| 8P  `.
+       /     \.___.d|    .'
+       `--..__)8888P`._.'         
+"""
+
+        case _:
+            _ascii: str = f"""
+                     |
+                   .' `.
+                : (     ) :
+     .      |  ( )`._ _.'( )  |      .
+     O  .   |`-  -|  .  |-  -'|   .  O
+     H  o   |A /\ | ( ) | /\ A|   o  H
+     H  I   |  -' | | | | `-  |   I  H
+    .H__T___|_|___|_|_|_|___|_|___T__H.
+    |_________________________________|
+                 /       \\
+                /         \\
+               /           \\         
+"""
+
+    return _ascii
+
+
 ############################################################
 # Enum classes                                             #
 # -------------------------------------------------------- #
@@ -527,6 +613,12 @@ class PlatformInfo(PlatformInfoBase):
 
         return platform_extra
 
+    @property
+    def ascii_art(self) -> str:
+        _ascii: str = get_os_ascii(os=self.system)
+
+        return _ascii
+
     def display_info(self, simplified: bool = True):
         if simplified:
             msg: str = f"""[ Platform Information ]
@@ -545,8 +637,6 @@ Python:
     Default encoding: {self.python.default_encoding}
     'PYTHONDONTWRITEBYTECODE' environment variable: {self.python.dont_write_bytecode}
 """
-
-            print(msg)
 
         else:
 
@@ -583,6 +673,8 @@ def main(options: argparse.Namespace):
     platform_info: PlatformInfo = get_platform_info()
 
     if options.debug:
+        print(platform_info.ascii_art)
+        print()
         print(platform_info)
 
     else:
@@ -597,8 +689,15 @@ def main(options: argparse.Namespace):
             print(msg)
 
         if options.verbosity == 1:
+            print(platform_info.ascii_art)
+            print()
+
             platform_info.display_info(simplified=True)
-        elif options.verbosity > 1:
+
+        elif options.verbosity >= 2:
+            print(platform_info.ascii_art)
+            print()
+
             platform_info.display_info(simplified=False)
 
 
